@@ -211,7 +211,12 @@ td.det li{margin:2px 0}
 .fb-det{font:600 12.5px 'Space Grotesk',sans-serif;color:var(--green-hi);text-decoration:none;white-space:nowrap;
   border-bottom:1px solid rgba(69,199,74,.45);padding-bottom:1px}
 .fb-det:hover{color:#fff;border-color:#fff}
-.toolbar .btn{margin-left:auto}
+.tb-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tb-actions .btn{margin-left:0}
+.btn-path[aria-pressed="true"]{background:var(--green);color:#000;border-color:var(--green)}
+.fb-step{font:600 11.5px 'Space Grotesk',sans-serif;color:var(--green-hi);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.fx-path-node{fill:rgba(49,169,54,.12);stroke:#45C74A;stroke-width:4;filter:url(#fxSoft)}
+@media (max-width:760px){ .tb-actions{margin-left:0} }
 
 .fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .fx-under{fill:none;stroke:#31A936;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;opacity:.55;filter:url(#fxGlow)}
@@ -259,7 +264,7 @@ td.det li{margin:2px 0}
     </div>
     <div class="toolbar">
       <div class="flowbar" id="flowbar" aria-live="polite"><span class="fb-hint"><i aria-hidden="true"></i>Passe o mouse sobre um processo para ver para onde ele segue. Clique para abrir o detalhamento.</span></div>
-      <button class="btn" id="zoomBtn" type="button" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.4 10.4 14 14M7 5v4M5 7h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Ampliar</span></button>
+      <div class="tb-actions"><button class="btn btn-path" type="button" data-path="A" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="12.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12.5" cy="3.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.3 12.5H10a2.5 2.5 0 0 0 0-5H6a2.5 2.5 0 0 1 0-5h4.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Caminho ótimo · Fluxo A</span></button><button class="btn btn-path" type="button" data-path="B" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="12.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12.5" cy="3.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.3 12.5H10a2.5 2.5 0 0 0 0-5H6a2.5 2.5 0 0 1 0-5h4.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Caminho ótimo · Fluxo B</span></button><button class="btn" id="zoomBtn" type="button" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.4 10.4 14 14M7 5v4M5 7h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Ampliar</span></button></div>
     </div>
     <div class="flow-wrap">
       <div class="flow">
@@ -623,7 +628,9 @@ td.det li{margin:2px 0}
   var bar = document.getElementById('flowbar');
   var wrap = document.querySelector('.flow-wrap');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var run = 0;
+  var run = 0, mode = 'hover', pathRunning = false;
+  var PATHS = {"A": [["1", "2", ""], ["2", "3", ""], ["3", "4", "Não"], ["4", "5", ""], ["5", "6-1-1", "Não"], ["6-1-1", "6-1-2", ""], ["6-1-2", "6-1-3", ""], ["6-1-3", "6-1-4", ""], ["6-1-4", "7", ""], ["7", "8", ""], ["8", "9", ""], ["9", "10-2-1", "Sim"], ["10-2-1", "11-1", ""], ["11-1", "11-2", ""], ["11-2", "11-2-1", "Sim"], ["11-2-1", "11-2-2", ""]], "B": [["1", "2", ""], ["2", "3", ""], ["3", "4", "Sim"], ["4", "5", ""], ["5", "6-2-1", "Sim"], ["6-2-1", "6-2-2", ""], ["6-2-2", "6-2-3", ""], ["6-2-3", "6-2-4", ""], ["6-2-4", "6-2-5", ""], ["6-2-5", "7", ""], ["7", "8", ""], ["8", "9", ""], ["9", "10-2-1", "Sim"], ["10-2-1", "11-1", ""], ["11-1", "11-2", ""], ["11-2", "11-2-1", "Sim"], ["11-2-1", "11-2-2", ""]]};
+  var pathBtns = document.querySelectorAll('.btn-path');
 
   function el(tag, attrs){ var e = document.createElementNS(NS, tag); for(var k in attrs) e.setAttribute(k, attrs[k]); return e; }
   function shape(slug, pad, cls){
@@ -648,16 +655,24 @@ td.det li{margin:2px 0}
     phase([tg, ts]); nodes.appendChild(tg); nodes.appendChild(ts);
   }
 
-  function drawEdge(e, token, delay){
+  function pingOnce(slug){
+    var g = shape(slug, 7, 'fx-ping-glow'), s = shape(slug, 5, 'fx-ping');
+    nodes.appendChild(g); nodes.appendChild(s);
+    setTimeout(function(){ g.remove(); s.remove(); }, 1300);
+  }
+
+  function drawEdge(e, token, delay, opts){
+    opts = opts || {};
+    var arrive = opts.onDone || function(){ ping(e.to); };
     var d = 'M' + e.pts.map(function(p){ return p[0]+' '+p[1]; }).join(' L');
     var under = el('path', {d:d, 'class':'fx-under'}), core = el('path', {d:d, 'class':'fx-core'});
     var hg = el('circle', {r:16, 'class':'fx-head-glow'}), hd = el('circle', {r:6, 'class':'fx-head'});
     lines.appendChild(under); lines.appendChild(core);
     var L = core.getTotalLength();
     [under, core].forEach(function(p){ p.style.strokeDasharray = L + ' ' + L; p.style.strokeDashoffset = L; });
-    if(reduce){ under.style.strokeDashoffset = 0; core.style.strokeDashoffset = 0; core.classList.add('done'); under.classList.add('done'); ping(e.to); return; }
+    if(reduce){ under.style.strokeDashoffset = 0; core.style.strokeDashoffset = 0; core.classList.add('done'); under.classList.add('done'); arrive(); return; }
     lines.appendChild(hg); lines.appendChild(hd);
-    var dur = Math.max(550, Math.min(1700, L / 1.15)), t0 = null;
+    var dur = opts.fast ? Math.max(260, Math.min(950, L / 2.1)) : Math.max(550, Math.min(1700, L / 1.15)), t0 = null;
     function ease(k){ return k < .5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2)/2; }
     function step(t){
       if(token !== run) return;
@@ -667,7 +682,7 @@ td.det li{margin:2px 0}
       var pt = core.getPointAtLength(L*v);
       hd.setAttribute('cx', pt.x); hd.setAttribute('cy', pt.y); hg.setAttribute('cx', pt.x); hg.setAttribute('cy', pt.y);
       if(k < 1){ requestAnimationFrame(step); }
-      else { hd.remove(); hg.remove(); phase([core, under]); core.classList.add('done'); under.classList.add('done'); ping(e.to); }
+      else { hd.remove(); hg.remove(); phase([core, under]); core.classList.add('done'); under.classList.add('done'); arrive(); }
     }
     requestAnimationFrame(step);
   }
@@ -694,9 +709,12 @@ td.det li{margin:2px 0}
     wrap.scrollTo({left: Math.max(0, cx - wrap.clientWidth/2), behavior: reduce ? 'auto' : 'smooth'});
   }
 
+  function setPathBtns(key){ pathBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-path') === key ? 'true' : 'false'); }); }
+  function hint(){ bar.innerHTML = '<span class="fb-hint"><i aria-hidden="true"></i>Passe o mouse sobre um processo para ver para onde ele segue. Clique para abrir o detalhamento.</span>'; }
+
   function play(slug){
     if(!NODES[slug]) return;
-    clear();
+    clear(); mode = 'hover'; pathRunning = false; setPathBtns(null);
     var token = run;
     nodes.appendChild(shape(slug, 5, 'fx-sel'));
     renderBar(slug);
@@ -706,12 +724,50 @@ td.det li{margin:2px 0}
   }
   window.tragettaPlay = play;
 
+  function pathBar(key, slug, i, total, done){
+    var n = NODES[slug];
+    bar.innerHTML = '<span class="fb-cur"><b>' + esc(n.n) + '</b><span>' + esc(n.name) + '</span></span>' +
+      '<span class="fb-step">Caminho ótimo · Fluxo ' + key + (done ? ' · concluído em ' + total + ' processos' : ' · passo ' + (i + 1) + ' de ' + total) + '</span>' +
+      '<a class="fb-det" href="#p-' + slug + '">Ver detalhamento ↓</a>';
+  }
+
+  function playPath(key){
+    var seq = PATHS[key]; if(!seq) return;
+    clear(); mode = 'path'; pathRunning = true; setPathBtns(key);
+    var token = run, stops = [seq[0][0]].concat(seq.map(function(s){ return s[1]; })), total = stops.length;
+    function reach(i){
+      if(token !== run) return;
+      var slug = stops[i];
+      nodes.appendChild(shape(slug, 5, 'fx-path-node'));
+      pingOnce(slug);
+      centerOn(slug);
+      if(i === total - 1){
+        ping(slug); pathRunning = false;
+        pathBar(key, slug, i, total, true);
+        return;
+      }
+      pathBar(key, slug, i, total, false);
+      var st = seq[i];
+      var e = EDGES.filter(function(x){ return x.from === st[0] && x.to === st[1] && x.label === st[2]; })[0];
+      setTimeout(function(){ if(token === run) drawEdge(e, token, 0, {fast: true, onDone: function(){ reach(i + 1); }}); }, reduce ? 0 : 140);
+    }
+    if(wrap){ var r = wrap.getBoundingClientRect(); if(r.top < 60 || r.bottom > window.innerHeight){ wrap.scrollIntoView({block: 'center', behavior: reduce ? 'auto' : 'smooth'}); } }
+    reach(0);
+  }
+  pathBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var key = b.getAttribute('data-path');
+      if(mode === 'path' && b.getAttribute('aria-pressed') === 'true'){ clear(); mode = 'hover'; pathRunning = false; setPathBtns(null); hint(); return; }
+      playPath(key);
+    });
+  });
+
   document.querySelectorAll('.hot').forEach(function(a){
     var slug = a.id.slice(2);
-    a.addEventListener('mouseenter', function(){ play(slug); });
-    a.addEventListener('focus', function(){ play(slug); });
+    a.addEventListener('mouseenter', function(){ if(!pathRunning) play(slug); });
+    a.addEventListener('focus', function(){ if(!pathRunning) play(slug); });
   });
-  if(wrap){ wrap.addEventListener('mouseleave', function(){ clear(); }); }
+  if(wrap){ wrap.addEventListener('mouseleave', function(){ if(mode === 'hover') clear(); }); }
   bar.addEventListener('click', function(ev){
     var b = ev.target.closest('button[data-go]'); if(!b) return;
     var s = b.getAttribute('data-go'); centerOn(s); play(s);
