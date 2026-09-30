@@ -169,6 +169,10 @@ td.det{color:var(--text-2)}
 }
 
 td.det ul{margin:6px 0 0;padding-left:18px}
+.note-comp p{margin:4px 0 6px}
+.note-comp ol{margin:0;padding-left:20px}
+.note-comp li{margin:3px 0}
+.note + .note{margin-top:10px}
 td.det li{margin:2px 0}
 .cxs{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
 .cx{display:inline-flex;align-items:center;gap:6px;font:600 12.5px 'Space Grotesk',sans-serif;color:var(--text);
@@ -192,6 +196,11 @@ td.det li{margin:2px 0}
   .cx b{font-size:6px}
   td.det ul{margin:1px 0 0;padding-left:10px}
   td.det li{margin:0}
+  .note{margin-top:2mm;padding:4px 9px;font-size:7.2px}
+  .note-comp p{margin:1px 0 2px}
+  .note-comp li{margin:0}
+  .note + .note{margin-top:1.5mm}
+  #detalhamento .note-comp{display:none}
 }
 
 .flowbar{flex:1;min-width:0;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;font-size:13.5px;color:var(--text-2);min-height:38px}
@@ -310,6 +319,7 @@ td.det li{margin:2px 0}
         <a class="hot" id="f-14" href="#p-14" aria-label="Processo 14 · Considera a oportunidade e remove o projeto: ver detalhamento" style="left:33.8843%;top:12.6761%;width:6.6942%;height:6.7606%"></a>
       </div>
     </div>
+    <div class="note note-comp"><div><strong>Nota complementar ao processo 14</strong><p>O novo round pode acontecer por dois caminhos, definidos pela ação do usuário, sem necessidade de um fluxo adicional:</p><ol><li><strong>Clonagem na Easy Price:</strong> o usuário clona uma simulação já enviada ao Salesforce para iniciar um novo round. É o cenário desenhado no fluxo, que considera o gatilho da Easy Price (processos 12.2, 13 e 14).</li><li><strong>Novo projeto no Salesforce:</strong> o usuário cria um novo projeto para a mesma oportunidade e clica em Simular. O Salesforce aciona a Easy Price, que gera uma nova simulação vinculada a esse projeto, como em uma simulação normal (a partir do 6.2.1). Nesse cenário não é necessário gatilho adicional na Easy Price para identificar o novo round, porque o projeto já foi criado no Salesforce pelo usuário.</li></ol></div></div>
   </section>
 
   <section class="sheet" id="detalhamento">
@@ -546,13 +556,14 @@ td.det li{margin:2px 0}
             <td data-label="N° Processo"><a class="num" href="#f-14" aria-label="Localizar o processo 14 no fluxograma"><span>14</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a></td>
             <td data-label="Ambiente"><span class="amb amb-ep">Easy Price</span></td>
             <td data-label="Processo" class="proc"><strong>Considera a oportunidade e remove o projeto</strong><span class="tags"><span class="tag tag-fb">Fluxo B</span></span></td>
-            <td data-label="Detalhes do Processo" class="det">Confirmado o novo round, a oportunidade é mantida, o projeto é removido e a precificação é reprocessada (ver nota 14).</td>
+            <td data-label="Detalhes do Processo" class="det">Confirmado o novo round, a oportunidade é mantida, o projeto é removido e a precificação é reprocessada (ver nota 14 e nota complementar).</td>
             <td data-label="Conexão" class="conn"><div class="cxs"><a class="cx" href="#p-6-2-2" aria-label="Ir para o processo 6.2.2"><span class="cx-arrow" aria-hidden="true">→</span>6.2.2</a></div></td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="note"><div><strong>Nota 14 do desenho original:</strong> "14 - Toda simulação entitulada como novo round, é submetida ao Salesforce como sem projeto e o Salesforce, por sua vez, cria o projeto/round."</div></div>
+    <div class="note note-comp"><div><strong>Nota complementar ao processo 14</strong><p>O novo round pode acontecer por dois caminhos, definidos pela ação do usuário, sem necessidade de um fluxo adicional:</p><ol><li><strong>Clonagem na Easy Price:</strong> o usuário clona uma simulação já enviada ao Salesforce para iniciar um novo round. É o cenário desenhado no fluxo, que considera o gatilho da Easy Price (processos 12.2, 13 e 14).</li><li><strong>Novo projeto no Salesforce:</strong> o usuário cria um novo projeto para a mesma oportunidade e clica em Simular. O Salesforce aciona a Easy Price, que gera uma nova simulação vinculada a esse projeto, como em uma simulação normal (a partir do 6.2.1). Nesse cenário não é necessário gatilho adicional na Easy Price para identificar o novo round, porque o projeto já foi criado no Salesforce pelo usuário.</li></ol></div></div>
   </section>
 </main>
 
