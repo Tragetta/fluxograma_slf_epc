@@ -220,7 +220,10 @@ td.det li{margin:2px 0}
 .fb-det{font:600 12.5px 'Space Grotesk',sans-serif;color:var(--green-hi);text-decoration:none;white-space:nowrap;
   border-bottom:1px solid rgba(69,199,74,.45);padding-bottom:1px}
 .fb-det:hover{color:#fff;border-color:#fff}
-.tb-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tb-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.tb-paths{display:flex;flex-direction:column;gap:5px}
+.tb-label{font:600 12.5px 'Space Grotesk',sans-serif;letter-spacing:.01em;color:var(--text-2)}
+.tb-path-btns{display:flex;gap:8px;flex-wrap:wrap}
 .tb-actions .btn{margin-left:0}
 .btn-path[aria-pressed="true"]{background:var(--green);color:#000;border-color:var(--green)}
 .fb-step{font:600 11.5px 'Space Grotesk',sans-serif;color:var(--green-hi);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
@@ -273,7 +276,7 @@ td.det li{margin:2px 0}
     </div>
     <div class="toolbar">
       <div class="flowbar" id="flowbar" aria-live="polite"><span class="fb-hint"><i aria-hidden="true"></i>Passe o mouse sobre um processo para ver para onde ele segue. Clique para abrir o detalhamento.</span></div>
-      <div class="tb-actions"><button class="btn btn-path" type="button" data-path="A" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="12.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12.5" cy="3.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.3 12.5H10a2.5 2.5 0 0 0 0-5H6a2.5 2.5 0 0 1 0-5h4.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Caminho ótimo · Fluxo A</span></button><button class="btn btn-path" type="button" data-path="B" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="12.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12.5" cy="3.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.3 12.5H10a2.5 2.5 0 0 0 0-5H6a2.5 2.5 0 0 1 0-5h4.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Caminho ótimo · Fluxo B</span></button><button class="btn" id="zoomBtn" type="button" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.4 10.4 14 14M7 5v4M5 7h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Ampliar</span></button></div>
+      <div class="tb-actions"><div class="tb-paths" role="group" aria-labelledby="tbPathsLabel"><span class="tb-label" id="tbPathsLabel">Caminhos ótimos para:</span><div class="tb-path-btns"><button class="btn btn-path" type="button" data-path="A" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="12.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12.5" cy="3.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.3 12.5H10a2.5 2.5 0 0 0 0-5H6a2.5 2.5 0 0 1 0-5h4.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Oportunidade</span></button><button class="btn btn-path" type="button" data-path="B" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="12.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12.5" cy="3.5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.3 12.5H10a2.5 2.5 0 0 0 0-5H6a2.5 2.5 0 0 1 0-5h4.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Projeto</span></button></div></div><button class="btn" id="zoomBtn" type="button" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.4 10.4 14 14M7 5v4M5 7h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Ampliar</span></button></div>
     </div>
     <div class="flow-wrap">
       <div class="flow">
@@ -738,7 +741,7 @@ td.det li{margin:2px 0}
   function pathBar(key, slug, i, total, done){
     var n = NODES[slug];
     bar.innerHTML = '<span class="fb-cur"><b>' + esc(n.n) + '</b><span>' + esc(n.name) + '</span></span>' +
-      '<span class="fb-step">Caminho ótimo · Fluxo ' + key + (done ? ' · concluído em ' + total + ' processos' : ' · passo ' + (i + 1) + ' de ' + total) + '</span>' +
+      '<span class="fb-step">Caminho ótimo · ' + (key === 'A' ? 'Oportunidade' : 'Projeto') + (done ? ' · concluído em ' + total + ' processos' : ' · passo ' + (i + 1) + ' de ' + total) + '</span>' +
       '<a class="fb-det" href="#p-' + slug + '">Ver detalhamento ↓</a>';
   }
 
